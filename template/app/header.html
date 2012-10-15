@@ -1,0 +1,21 @@
+<div id="header" class="center">
+    <div class="gd12 center">
+       	<h1 id="logo" class="left"><a class="logo left txtHidden" href="/" title="tuorden.pe">tuorden.pe</a></h1>
+        <ul id="menuMainTop">
+            {% for i, nav in header %}
+            <li class="liMenuT {{ cycle(['home', 'selecciona','como'], i) }}M left">
+                <a class="aMenuT left" href="{{ nav.url }}">{{ nav.titulo|replace({'-':'<br>'})|raw }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <ul id="menuSecTop">
+        <li class="liMenuSec left contactJ">
+            <a href="#" class="aMenuSec left">Contacto</a>
+        </li>
+        <li class="liMenuSec left terminosJ">
+            <a href="#" class="aMenuSec left">Términos y condiciones</a>
+        </li>
+    </ul>
+    <div id="chapa" class="alignC">Servico<br />al cliente</div>
+</div>

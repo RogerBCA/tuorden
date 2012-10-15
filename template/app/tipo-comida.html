@@ -1,0 +1,112 @@
+{% extends 'app/base.html' %}
+
+{% block title %}{% if categoria.resumen %}{{ categoria.resumen }}{% else %}{{ categoria.titulo }}{% endif %}{% endblock %}
+
+{% block js_extra %}
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.6.4.min.js" type="text/javascript"></script>
+<script src="http://cdn.jquerytools.org/1.2.6/full/jquery.tools.min.js"></script>
+<script src="{{ STATIC_URL }}js/main.js" type="text/javascript"></script>
+{% endblock %}
+
+{% block content %}
+<h2 class="h2Title">{% if categoria.resumen %}{{ categoria.resumen }}{% else %}{{ categoria.titulo }}{% endif %}<span class="circleRed">&nbsp;</span></h2>
+<div id="topOpt" class="block">
+	{{ categoria.contenido|raw }}
+	<div class="block alignR">
+		<a href="#" class="linkIco mR20 icons delivery">Delivery</a>
+		<a href="#" class="linkIco icons paraLlevar">Para llevar</a>
+	</div>
+</div>
+
+<div id="contentFlow" class="block">
+	{% for i,local in locales %}
+	{% if i%4 == 0 %}
+	<!-- 1 B -->
+	<div class="cntFlowTipo block">
+	{% endif %}
+		<!-- 1 -->
+		<div class="cntTipoN left iTooltip">
+			<div class="iCntTipoN">
+				<div class="imgTipo">
+					<img src="/timthumb.php?src={{ local.imagen }}&h=145&w=140&zc=1" alt="tuorden.pe">
+				</div>
+				<h2 class="titleH2TipoN">{{ local.titulo }}</h2>
+				<a href="{{ SITE_URL }}distribuidor/{{ local.id }}/">
+				<p class="detailTipo">
+					{{ local.resumen }}
+				</p>
+				</a>
+				{% if local.pago.0 == 1 or local.pago.5 == 1 %}
+				<div class="block tipoIcons">
+					{% if local.pago.0 == 1 %}<a href="#" class="linkIco left icons delivery" title="Delivery"></a>{% endif %}
+					{% if local.pago.5 == 1 %}<a href="#" class="linkIco left icons paraLlevar" title="Para llevar"></a>{% endif %}
+				</div>
+				{% endif %}
+				<div class="blocks ratingS">
+					<div class="ratingsT left">
+						<a href="#" class="star icons left"></a>
+						<a href="#" class="star icons left"></a>
+						<a href="#" class="star icons left"></a>
+						<a href="#" class="star icons left"></a>
+						<a href="#" class="star icons left"></a>
+					</div>
+					{% if local.estado %}
+					<span class="txtInf redTxt right">Abierto</span>
+					{% else %}
+					<span class="txtInf grayTxt right">Cerrado</span>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+		<!-- tooltip -->
+		<div class="tooltip" style="position: absolute; top: 97px; left: 7px; opacity: 0; display: none;">
+			<div class="headTip">
+				<h6 class="h6TipTool">{{ local.titulo }}</h6>
+				<div class="descripTool">
+					{{ local.eslogan }}
+				</div>
+			</div>
+			<ul class="bodyTip">
+				{% if local.direccion %}
+				<li class="liListTo">{{ local.direccion }}</li>
+				{% endif %}
+				<li class="liListTo">
+				<div class="divListTo">
+					<span class="boldTit">Horario de Atención:</span>
+				</div>
+				<a href="">
+				<div class="divListTo">
+					{{ local.descripcion_horario }}
+				</div>
+				</a>
+				</li>
+				{% if local.pago.0 == 1 %}
+					{% if local.pago.1 == 1 or local.pago.2 == 1 or local.pago.3 == 1 or local.pago.3 == 1 %}
+				<li class="liListTo lastLiLTo">
+					<div class="divListTo mB5"><span class="boldTit">Método de Pago - Delivery: </span></div>
+					{% if local.pago.1 == 1 %}<div class="divListTo"><span class="spanOM pagoEfect"><span href="#" class="payOpt opt1 icons">&nbsp;</span> Pago en efectivo</span></div>{% endif %}
+					{% if local.pago.2 == 1 %}<div class="divListTo"><span href="#" class="payOpt opt2 icons">&nbsp;</span> Visa</span></div>{% endif %}
+					{% if local.pago.3 == 1 %}<div class="divListTo"><span class="spanOM pagoAmericanE"><span href="#" class="payOpt opt3 icons">&nbsp;</span> American Express</span></div>{% endif %}
+					{% if local.pago.4 == 1 %}<div class="divListTo"><span class="spanOM pagoMastercard"><span href="#" class="payOpt opt4 icons">&nbsp;</span> Mastercard</span></div>{% endif %}
+				</li>
+					{% endif %}
+				{% endif %}
+				{% if local.pago.5 == 1 %}
+					{% if local.pago.6 == 1 or local.pago.7 == 1 or local.pago.8 == 1 or local.pago.9 == 1 %}
+				<li class="liListTo lastLiLTo">
+					<div class="divListTo mB5"><span class="boldTit">Método de Pago - Para Llevar: </span></div>
+					{% if local.pago.6 == 1 %}<div class="divListTo"><span class="spanOM pagoEfect"><span href="#" class="payOpt opt1 icons">&nbsp;</span> Pago en efectivo</span></div>{% endif %}
+					{% if local.pago.7 == 1 %}<div class="divListTo"><span href="#" class="payOpt opt2 icons">&nbsp;</span> Visa</span></div>{% endif %}
+					{% if local.pago.8 == 1 %}<div class="divListTo"><span class="spanOM pagoAmericanE"><span href="#" class="payOpt opt3 icons">&nbsp;</span> American Express</span></div>{% endif %}
+					{% if local.pago.9 == 1 %}<div class="divListTo"><span class="spanOM pagoMastercard"><span href="#" class="payOpt opt4 icons">&nbsp;</span> Mastercard</span></div>{% endif %}
+				</li>
+					{% endif %}
+				{% endif %}
+			</ul>
+		</div>
+	{% if i%4 == 0 and i!=0 %}
+	</div>
+	{% endif %}
+	{% endfor %}
+</div>
+{% endblock %}
