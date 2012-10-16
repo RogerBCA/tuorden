@@ -11,38 +11,41 @@
         <script src="{{ STATIC_URL }}js/less.js" type="text/javascript"></script>
     </head>
 
-    <body id="{% if id_body %}{{ id_body }}{% else %}home{% endif %}">
+    <body id="{% block id_body %}home{% endblock %}">
         <div id="wrap" class="gdAll center">
             {% include 'app/header.html' %}
 
             {% block slider_home %}{% endblock %}
             <div id="filter" class="gdAll center">
-                <form id="filterF" action="busqueda.php" method="get">
+                <form id="filterF" action="{{ SITE_URL }}busqueda/" method="get">
                     <fieldset id="field1" class="left">
                         <label for="tipoCambio" class="labelM">TIPO DE COMIDA</label>
                         <select id="tipoCambio" class="selectM" name="t">
                             {% for cat in categorias %}
-                            <option value="{{ cat.id }}">{{ cat.titulo }}</option>
+                            <option value="{{ cat.id }}" {% if cat.id == categoria.id %}selected{% endif %} >{{ cat.titulo }}</option>
                             {% endfor %}
                         </select>
                         <label for="distrito" class="labelM">DISTRITO</label>
                         <select id="distrito" class="selectM" name="d">
+                            <option value="">Todos los Distritos</option>
                             {% for dis in distritos %}
-                            <option value="{{ dis.id }}">{{ dis.nombre }}</option>
+                            <option value="{{ dis.id }}" {% if dis.id == dist %}selected{% endif %}>{{ dis.nombre }}</option>
                             {% endfor %}
                         </select>
                     </fieldset>
                     <fieldset id="field1" class="left">
                         <label for="precioM" class="labelM">PRECIO:</label>
                         <select id="precioM" class="selectM" name="p">
-                            <option value="0">Todos los Precios</option>
-                            <option value="0-20">0 - 20 Soles</option>
-                            <option value="20-40">20 - 40 Soles</option>
-                            <option value="20-1500">40 Soles a más</option>
+                            <option value="">Todos los Precios</option>
+                            <option value="1">0 - 20 Soles</option>
+                            <option value="2">20 - 40 Soles</option>
+                            <option value="3">40 Soles a más</option>
                         </select>
                         <div id="optChecks">
-                            <label for="paraLlevarM" class="labelM"><input type="radio" id="paraLlevarM" class="checkM" name="e" value="0" checked="checked"> <span class="spanM">Para llevar</span></label>
-                            <label for="deliveryM" class="labelM"><input type="radio" id="deliveryM" class="checkM" name="e" value="1"> <span class="spanM">Delivery</span></label>          
+                            <label for="paraLlevarM" class="labelM">
+                                <input type="radio" id="paraLlevarM" class="checkM" name="e" value="1" checked="checked"> <span class="spanM">Para llevar</span></label>
+                            <label for="deliveryM" class="labelM">
+                                <input type="radio" id="deliveryM" class="checkM" name="e" value="2"> <span class="spanM">Delivery</span></label>          
                             <input type="submit" id="sbtM" class="submitM" value="Buscar">
                         </div>
                     </fieldset>

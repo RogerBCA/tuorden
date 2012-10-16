@@ -11,5 +11,5 @@ DEFINE("PREFIX","");
 // Usuario privilegiado
 /////////////////////////////////////////
 DEFINE("usuario","root");
-DEFINE("clave","");
+DEFINE("clave","root939");
 ?>

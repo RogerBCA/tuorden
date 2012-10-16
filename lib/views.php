@@ -27,9 +27,9 @@ $locals = array();
 $locals['app_name'] = app_name;
 $locals['STATIC_URL'] = STATIC_URL;
 $locals['SITE_URL'] = SITE_URL;
-$locals['info'] = $info = $app->infosite();
 
 $locals['header'] = $app->query('bloques',array("padre=2","estado=1"),'','order by id');
+$locals['footer'] = $app->query('bloques',array("padre in (2,5)","estado=1"),'','order by padre,id');
 $locals['categorias'] = $app->query('categorias',array("padre=1","estado=1"),'','order by prioridad');
 $locals['distritos'] = $app->query('distritos','','',
     'where  id in (select distrito from distribuidores_sedes where estado=1 group by distrito)');
@@ -104,8 +104,7 @@ if ($v[1] == 'home') {
 
 }elseif ($v[1] == 'selecciona-tu-tipo-de-comida' ) {
 
-    // PRODUCTOS REGALOS
-    $locals['id_body'] = 'inside';
+    // INICIO
     if( $v[2]!='' and is_numeric($v[2]) ){
         foreach ($locals['categorias'] as $val) {
             if ($val->id == $v[2]) {
@@ -127,29 +126,81 @@ if ($v[1] == 'home') {
         $locals['locales'][$k]->imagen = $imagen[1];
         $locals['locales'][$k]->pago = explode(",",$val->pago);
     }
-    /*
-    printQuery($locals['locales']);
-    exit();
-    */
+
     echo $twig->render('app/tipo-comida.html', $locals );
     //FIN DE PRODUCTOS REGALOS
 
-}elseif ($v[1] == 'lista-baby-shower' ) {
+}elseif ($v[1] == 'distribuidor' ) {
 
-    // INICIO DE LISTA DE BABY SHOWER
-    $seccion = $app->query('seccion',array("nick='lista-baby-shower'",'active=1'));
-    if ($seccion) {
-        $seccion = $seccion[0];
-        $locals['sec'] = $seccion;
-        $locals['slide'] = $app->image_seccion($seccion->id);
-        $bloques = $app->query('seccion',array("padre_id=".$seccion->id,'active=1'));
-        $sec = $app->query('seccion',array("slug='".$v[2]."'",'active=1'));
-        $locals['bloques'] = $bloques;
+    // INICIO
+    if( $v[2]!='' and is_numeric($v[2]) ){
+        $query = $app->query('distribuidores',array('id='.$v[2]));
+        if ($query){
+            $locals['distribuidor'] = $query[0];
+            if(isset($v[3]) and $v[3] == '') header('location: '.SITE_URL.'distribuidor/'.$v[2].'/inicio/');
+            $query = $app->query('distribuidores_sedes',array('id_distribu='.$v[2]));
+            if($query){
+                $imagen = explode(',',$query[0]->imagen);
+                $locals['distribuidor']->imagen = $imagen[1];
+                $locals['distribuidor']->valido = '';
+                foreach ($query as $val) $locals['distribuidor']->valido .= $val->descripcion.'<br>';
+            }
+            $locals['distribuidor']->pago = explode(",",$locals['distribuidor']->pago);
+            $locals['distribuidor']->vista = $v[3];
+            // printQuery($locals['distribuidor']);
+            // exit();
+        }
+    }else{
+        $locals['distribuidor'] = false;
     }
-
-    echo $twig->render('app/lista_baby_shower.html', $locals );
+    echo $twig->render('app/distribuidor.html', $locals );
     // FIN DE LISTA
     
+}elseif ($v[1] == 'busqueda' ) {
+
+    // INICIO
+    if( $GET['t']!='' and is_numeric($GET['t']) ){
+        foreach ($locals['categorias'] as $val) {
+            if ($val->id == $GET['t']) {
+                $locals['categoria'] = $val;
+            }
+        }
+    }
+
+    $precio = '';
+    $envio = '';
+    $locals['dist'] = '';
+    $banner = $app->query('banners_categorias',array('id_categorias='.$locals['categoria']->id));
+    if($banner){
+        $banner = explode(',', $banner[0]->principal);
+        if(isset($banner[1])) $locals['banner_categoria'] = $banner[1];
+    }
+    if( is_numeric($GET['p']) ){
+        if( $GET['p'] == 1 ) $precio = ' and precio < 21';
+        if( $GET['p'] == 2 ) $precio = ' and precio > 19 and precio < 41';
+        if( $GET['p'] == 3 ) $precio = ' and precio > 39 and precio < 1500';
+    }
+    if( is_numeric($GET['d']) ) $locals['dist'] = ' and s.distrito='.$GET['d'];
+    if( is_numeric($GET['e']) ){
+        if( $GET['e'] == 1 ) $envio = ' and d.llevar = 1';
+        if( $GET['e'] == 2 ) $envio = ' and d.delivery = 1';
+    }
+
+    $locals['locales'] = $app->query('distribuidores','',array(' d.*'),
+    ' as d inner join distribuidores_sedes as s on d.id = s.id_distribu
+    where  d.id in (select id_distribu from productos where id_categorias = '.$locals['categoria']->id.$precio.
+        ' group by id_distribu) '.$locals['dist'].$envio.' group by d.id');
+
+    // echo $app->lastQuery;
+    foreach ($locals['locales'] as $k => $val) {
+        $imagen = explode(',', $val->imagen_listado);
+        $locals['locales'][$k]->imagen = $imagen[1];
+        $locals['locales'][$k]->pago = explode(",",$val->pago);
+    }
+
+    echo $twig->render('app/tipo-comida.html', $locals );
+    // FIN DE LISTA
+
 }else{
     echo $twig->render('app/grupo_det.html', $locals );
 }

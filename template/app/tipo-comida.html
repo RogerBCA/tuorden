@@ -8,6 +8,8 @@
 <script src="{{ STATIC_URL }}js/main.js" type="text/javascript"></script>
 {% endblock %}
 
+{% block id_body %}inside{% endblock %}
+
 {% block content %}
 <h2 class="h2Title">{% if categoria.resumen %}{{ categoria.resumen }}{% else %}{{ categoria.titulo }}{% endif %}<span class="circleRed">&nbsp;</span></h2>
 <div id="topOpt" class="block">
@@ -32,9 +34,7 @@
 				</div>
 				<h2 class="titleH2TipoN">{{ local.titulo }}</h2>
 				<a href="{{ SITE_URL }}distribuidor/{{ local.id }}/">
-				<p class="detailTipo">
-					{{ local.resumen }}
-				</p>
+				<p class="detailTipo">{{ local.resumen }}</p>
 				</a>
 				{% if local.pago.0 == 1 or local.pago.5 == 1 %}
 				<div class="block tipoIcons">
@@ -62,9 +62,7 @@
 		<div class="tooltip" style="position: absolute; top: 97px; left: 7px; opacity: 0; display: none;">
 			<div class="headTip">
 				<h6 class="h6TipTool">{{ local.titulo }}</h6>
-				<div class="descripTool">
-					{{ local.eslogan }}
-				</div>
+				<div class="descripTool">{{ local.eslogan }}</div>
 			</div>
 			<ul class="bodyTip">
 				{% if local.direccion %}
@@ -74,11 +72,7 @@
 				<div class="divListTo">
 					<span class="boldTit">Horario de Atención:</span>
 				</div>
-				<a href="">
-				<div class="divListTo">
-					{{ local.descripcion_horario }}
-				</div>
-				</a>
+				<div class="divListTo">{{ local.descripcion_horario }}</div>
 				</li>
 				{% if local.pago.0 == 1 %}
 					{% if local.pago.1 == 1 or local.pago.2 == 1 or local.pago.3 == 1 or local.pago.3 == 1 %}

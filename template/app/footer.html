@@ -1,18 +1,11 @@
 <div id="footer" class="gdAll center">
     <div id="iFoot">
         <ul class="left" id="foot">
-            <li class="liFoot"><a href="#" class="aFoot">Home</a>
+            {% for nav in footer %}
+            <li class="liFoot">
+                <a href="{{ nav.url }}" class="aFoot">{{ nav.titulo }}</a>
             </li>
-            <li class="liFoot"><a href="#" class="aFoot">Selecciona tu tipo de comida</a>
-            </li>
-            <li class="liFoot"><a href="#" class="aFoot">Como Funciona</a>
-            </li>
-            <li class="liFoot"><a href="#" class="aFoot">Servicio al Cliente</a>
-            </li>
-            <li class="liFoot"><a href="#" class="aFoot">Contacto</a>
-            </li>
-            <li class="liFoot"><a href="#" class="aFoot">Términos y condiciones</a>
-            </li>
+            {% endfor %}
         </ul>
         <div class="right" id="optFoot">
             <h6 class="titH6F">Encuéntranos en</h6>
@@ -27,7 +20,7 @@
     </div>
     <p class="direccion">
         <a class="" href="http://www.staffcreativa.com/" target="_blank">
-            <img title="" alt="" src="images/validators_staff.png">
+            <img title="" alt="" src="{{ STATIC_URL }}images/validators_staff.png">
         </a>
     </p>
 </div>

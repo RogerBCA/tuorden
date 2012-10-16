@@ -1,0 +1,201 @@
+{% extends 'app/base.html' %}
+
+{% block title %}{{ distribuidor.titulo }}{% endblock %}
+
+{% block js_extra %}
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.6.4.min.js" type="text/javascript"></script>
+<script src="http://cdn.jquerytools.org/1.2.6/full/jquery.tools.min.js"></script>
+<script src="{{ STATIC_URL }}js/main.js" type="text/javascript"></script>
+{% endblock %}
+
+{% block id_body %}distribuidor{% endblock %}
+
+{% block content %}
+<ul id="ulMenuCnt">
+	<li class="liMenuCnt right">
+		<a href="{{ SITE_URL }}distribuidor/{{ distribuidor.id }}/comentario/" class="aMenuCnt">Comentario</a>
+	</li>
+	<li class="liMenuCnt right">
+		<a href="{{ SITE_URL }}distribuidor/{{ distribuidor.id }}/ubicacion/" class="aMenuCnt">Ubicación</a>
+	</li>
+	<li class="liMenuCnt right">
+		<a href="{{ SITE_URL }}distribuidor/{{ distribuidor.id }}/menu/" class="aMenuCnt">Menú</a>
+	</li>
+	<li class="liMenuCnt right">
+		<a href="{{ SITE_URL }}distribuidor/{{ distribuidor.id }}/inicio/" class="aMenuCnt">Inicio</a>
+	</li>
+</ul>
+<h2 class="h2Title">{{ distribuidor.titulo }} <span class="circleRed">&nbsp;</span></h2>
+<div id="topOpt" class="block">
+	<div class="textOpt mR20 left">
+		{% if distribuidor.informacion %}
+			{{ distribuidor.informacion|raw }}
+		{% else %}
+			{{ distribuidor.resumen|raw }}
+		{% endif %}
+	</div>
+	<div class="ratingsOpt gd2 mR20 left">
+		<div class="block">
+			<span class="titTxt left">Calificación:</span>
+			<a href="#" class="star icons left"></a>
+			<a href="#" class="star icons left"></a>
+			<a href="#" class="star icons left"></a>
+			<a href="#" class="star icons left"></a>
+			<a href="#" class="star icons left"></a>
+		</div>
+		{% if distribuidor.pago.0 %}
+		<div class="block mT20 mB5">
+			<a href="#" class="linkIco icons delivery">Delivery</a>
+		</div>
+		{% endif %}
+		{% if distribuidor.pago.5 %}
+		<div class="block">
+			<a href="#" class="linkIco icons paraLlevar">Para llevar</a>
+		</div>
+		{% endif %}
+	</div>
+	<div class="timesOpt gd4 left">
+		<dl class="dlListOpt all">
+			{% if distribuidor.valido != '<br>' %}
+			<dt class="dtListOpt">Válido para:</dt>
+			<dd class="ddListOpt mB5">{{ distribuidor.valido|raw }}</dd>
+			{% endif %}
+			{% if distribuidor.descripcion_horario %}
+			<dt class="dtListOpt">Horarios de Atención:</dt>
+			{{ distribuidor.descripcion_horario|raw }}
+			{% endif %}
+		</dl>
+	</div>
+</div>
+<div id="contentFlow" class="block">
+	{% if distribuidor.vista == 'inicio' %}
+	<div id="flow" class="left gd7">
+		{% if distribuidor.imagen %}
+		<div id="gallery">
+			<div class="gallery">
+				<img src="/timthumb.php?src={{ distribuidor.imagen }}&h=321&w=430&zc=1" alt="Tu Orden">
+			</div>
+			<!--
+			<a id="prev" class="icons" href="#prev"><span class="hide">Anterior</span></a>
+			<a id="next" class="icons" href="#next"><span class="hide">Siguiente</span></a>
+			-->
+			<h4 class="titleH4">{{ distribuidor.titulo }}</h4>
+		</div>
+		{% endif %}
+		{% if distribuidor.servicios %}
+		<h3 class="h2Title">Servicios</h3>
+		<dl class="dlFlowC">
+			{{ distribuidor.servicios|raw }}
+		</dl>
+		{% endif %}
+	</div>
+	{% elseif distribuidor.vista == 'menu' %}
+	<div id="flow" class="left gd8">
+		<h2 class="h2Title">Menu <span class="circleRed">&nbsp;</span></h2>
+		<div class="block">
+			<div class="imgBlockB left">
+				<div class="left imgLeftB">
+					<img src="images/burger.jpg" alt="Burger">
+				</div>
+				<div class="right textRightB">
+					<h2 class="h2TitleBC">Mexicana mediana</h2>
+					<div class="priceBC">
+						<div>
+							A solo
+						</div>
+						<div>
+							s/. 12.90
+						</div>
+					</div>
+					<div class="block cntBtnR">
+						<a class="sbtN btnSM right" href="#">Agregar</a>
+					</div>
+				</div>
+			</div>
+			<div class="imgBlockB right">
+				<div class="left imgLeftB">
+					<img src="images/burger.jpg" alt="Burger">
+				</div>
+				<div class="right textRightB">
+					<h2 class="h2TitleBC">Mexicana mediana</h2>
+					<div class="priceBC">
+						<div>
+							A solo
+						</div>
+						<div>
+							s/. 12.90
+						</div>
+					</div>
+					<div class="block cntBtnR">
+						<a class="sbtN btnSM right" href="#">Agregar</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<h3 class="h2Title">Los más populares</h3>
+		<div class="block cntMoreP">
+			<dl class="dlFlowC left">
+				<dt class="dtFlowC"><a href="#">Bembos Cheese</a></dt>
+				<dd class="ddFlowC">Av. Circunvalación N° 1803 - 1805 - Local Comercial Food Court </dd>
+				<dd class="ddFlowC mB5">San Juan de Miraflores</dd>
+			</dl>
+			<a class="sbtN btnSM right" href="#">Agregar</a>
+			<div class="pricePedB right">
+				S/.6.90
+			</div>
+		</div>
+		<div class="block cntMoreP">
+			<dl class="dlFlowC left">
+				<dt class="dtFlowC"><a href="#">Bembos Cheese</a></dt>
+				<dd class="ddFlowC">Av. Circunvalación N° 1803 - 1805 - Local Comercial Food Court </dd>
+				<dd class="ddFlowC mB5">San Juan de Miraflores</dd>
+			</dl>
+			<a class="sbtN btnSM right" href="#">Agregar</a>
+			<div class="pricePedB right">
+				S/.6.90
+			</div>
+		</div>
+		<div class="block cntMoreP">
+			<dl class="dlFlowC left">
+				<dt class="dtFlowC"><a href="#">Bembos Cheese</a></dt>
+				<dd class="ddFlowC">Av. Circunvalación N° 1803 - 1805 - Local Comercial Food Court </dd>
+				<dd class="ddFlowC mB5">San Juan de Miraflores</dd>
+			</dl>
+			<a class="sbtN btnSM right" href="#">Agregar</a>
+			<div class="pricePedB right">
+				S/.6.90
+			</div>
+		</div>
+		<div class="block cntMoreP">
+			<dl class="dlFlowC left">
+				<dt class="dtFlowC"><a href="#">Bembos Cheese</a></dt>
+				<dd class="ddFlowC">Av. Circunvalación N° 1803 - 1805 - Local Comercial Food Court </dd>
+				<dd class="ddFlowC mB5">San Juan de Miraflores</dd>
+			</dl>
+			<a class="sbtN btnSM right" href="#">Agregar</a>
+			<div class="pricePedB right">
+				S/.6.90
+			</div>
+		</div>
+		<div class="block cntMoreP">
+			<dl class="dlFlowC left">
+				<dt class="dtFlowC"><a href="#">Bembos Cheese</a></dt>
+				<dd class="ddFlowC">Av. Circunvalación N° 1803 - 1805 - Local Comercial Food Court </dd>
+				<dd class="ddFlowC mB5">San Juan de Miraflores</dd>
+			</dl>
+			<a class="sbtN btnSM right" href="#">Agregar</a>
+			<div class="pricePedB right">
+				S/.6.90
+			</div>
+		</div>
+		<ul class="pag block">
+			<li class="liPag active">1</li>
+			<li class="liPag"><a href="#">2</a></li>
+			<li class="liPag"><a href="#">3</a></li>
+			<li class="liPag"><a href="#">&gt;</a></li>
+		</ul>
+	</div>
+	{% endif %}
+	{% include 'app/cesta.html' %}
+</div>
+{% endblock %}
