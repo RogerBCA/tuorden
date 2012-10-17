@@ -1,8 +1,8 @@
 {% if CESTA == 'ON' %}
 <div id="aside" class="right">
 	<div class="ordenOpts">
-		<form class="frmF" action="">
-			{% if carrito %}
+		{% if carrito and carrito.1.local == distribuidor.id %}
+		<form class="frmF" action="pedido/" method="post">
 			<div class="iOrdenOpts">
 				<div class="espWhite">
 					<img src="/timthumb.php?src={{ distribuidor.logo }}&h=105&w=200&zc=1">
@@ -33,64 +33,99 @@
 					</div>
 					{% endfor %}
 				</div>
+				{% if distribuidor.pago.0 and distribuidor.pago.5 %}
 				<div class="br1 cntBr block">
-					<span class="right">Delivery</span>
+					<span class="right">
+					<label><input type="radio" checked="checked" name="tipo_pago" onclick="elegirCesta('number1')">Delivery</label>
+					<label><input type="radio" name="tipo_pago" onclick="elegirCesta('number2')">Para Llevar</label></span>
 				</div>
+				{% endif %}
+				{% if distribuidor.pago.0 %}
+				<div class="br1 cntBr block pagosC number1">
+					<span class="left">Delivery</span>
+					<span class="right">S/. {{ distribuidor.envio|number_format(2) }}</span>
+				</div>
+				{% endif %}
 				<div class="br1 cntBr block">
 					<span class="left">TOTAL</span>
-					<span class="right">S/.0.00</span>
+					<span class="right">S/. {{ carrito_total|number_format(2) }}</span>
 				</div>
 				<div class="block">
 					<input type="submit" class="sbtN right" value="Ordenar">
 				</div>
 			</div>
-			{% else %}
-			<div class="iOrdenOpts">
-			    <div class="block br1">
-			        <div class="left blockLOP">
-			            <h6 class="titleH6">Tu Orden</h6>
-			        </div>
-			    </div>
-			    <div class="cntBlockTO br1 block">
-			        <div class="block">
-			            <div class="left blockLOP">
-			                <label class="labelOpt">
-			                	<span class="txtN right">Cesta Vacia</span>
-			                </label>
-			            </div>
-			        </div>
-			    </div>
-			</div>
-			{% endif %}
 		</form>
+		{% else %}
+		<div class="iOrdenOpts">
+		    <div class="block br1">
+		        <div class="left blockLOP">
+		            <h6 class="titleH6">Tu Orden</h6>
+		        </div>
+		    </div>
+		    <div class="cntBlockTO br1 block">
+		        <div class="block">
+		            <div class="left blockLOP">
+		                <label class="labelOpt">
+		                	<span class="txtN right">Cesta Vacia</span>
+		                </label>
+		            </div>
+		        </div>
+		    </div>
+		</div>
+		{% endif %}
 	</div>
-	<div class="cntPayOpt">
-		<div class="iCntPayOpt">
+	{% if carrito and carrito.1.local == distribuidor.id %}
+	<div class="cntPayOpt" >
+		{% if distribuidor.pago.0 %}
+		<div class="iCntPayOpt pagosC number1">
 			<div class="topCnt mB5">
-				Metodo de pago
+				Metodo de pago - Delivery
 			</div>
 			<div class="block">
-				<a href="#" class="payOpt opt1 icons"></a>
-				<a href="#" class="payOpt opt2 icons"></a>
-				<a href="#" class="payOpt opt3 icons"></a>
-				<a href="#" class="payOpt opt4 icons"></a>
+				{% if distribuidor.pago.1 == 1 %}<a href="#" class="payOpt opt1 icons"></a>{% endif %}
+				{% if distribuidor.pago.2 == 1 %}<a href="#" class="payOpt opt2 icons"></a>{% endif %}
+				{% if distribuidor.pago.3 == 1 %}<a href="#" class="payOpt opt3 icons"></a>{% endif %}
+				{% if distribuidor.pago.4 == 1 %}<a href="#" class="payOpt opt4 icons"></a>{% endif %}
 			</div>
 			<div class="block">
 				<span class="left pay1">Total</span>
-				<span class="right pay1">S/. 0.00</span>
+				<span class="right pay1">S/. {{ (distribuidor.envio+carrito_total)|number_format(2) }}</span>
 			</div>
 			<div class="block pay2">
 				<span class="left pay2">Monto mínimo</span>
-				<span class="right pay2">S/. 0.00</span>
+				{% if distribuidor.minimo|number_format(2) %}
+				<span class="right pay2">S/. {{ distribuidor.minimo|number_format(2) }}</span>
+				{% endif %}
+			</div>
+		</div>
+		{% endif %}
+		<div class="iCntPayOpt pagosC number2" {% if distribuidor.pago.0 %}style="display: none;"{% endif %}>
+			<div class="topCnt mB5">
+				Metodo de pago - Para llevar
+			</div>
+			<div class="block">
+				{% if distribuidor.pago.6 == 1 %}<a href="#" class="payOpt opt1 icons"></a>{% endif %}
+				{% if distribuidor.pago.7 == 1 %}<a href="#" class="payOpt opt2 icons"></a>{% endif %}
+				{% if distribuidor.pago.8 == 1 %}<a href="#" class="payOpt opt3 icons"></a>{% endif %}
+				{% if distribuidor.pago.9 == 1 %}<a href="#" class="payOpt opt4 icons"></a>{% endif %}
+			</div>
+			<div class="block">
+				<span class="left pay1">Total</span>
+				<span class="right pay1">S/. {{ carrito_total|number_format(2) }}</span>
+			</div>
+			<div class="block pay2">
+				<span class="left pay2">Monto mínimo</span>
+				{% if distribuidor.minimo|number_format(2) %}
+				<span class="right pay2">S/. {{ distribuidor.minimo|number_format(2) }}</span>
+				{% endif %}
 			</div>
 		</div>
 	</div>
+	{% endif %}
 </div>
 {% else %}
 <div id="aside" class="right">
 	<div class="ordenOpts">
-		<form id="formCesta" class="frmF" action="carrito.php?update=1" method="post">
-		<input type="hidden" name="reference" value="/distribuidor.php?d=41&amp;tipo=menu">
 		<div class="iOrdenOpts">
 			<input type="hidden" name="id_local2" id="id_local2" value="">
 			<div class="block br1">
@@ -105,10 +140,8 @@
 					<label class="labelOpt"><span class="txtN right">En mantenimiento...</span></label>
 					</div>
 				</div>
-				<input type="hidden" id="itemCar" name="itemCar">
 			</div>
 		</div>
-		</form>
 	</div>
 </div>
 {% endif %}

@@ -1,0 +1,199 @@
+{% extends 'app/base.html' %}
+
+{% block title %}{{ distribuidor.titulo }}{% endblock %}
+
+{% block js_extra %}
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.6.4.min.js" type="text/javascript"></script>
+
+{% if carrito %}
+<script type="text/javascript" >
+function elegirtipo1(){
+	$('.tipo').hide();
+}
+function elegirtipo2(){
+	$('.tipo').show();
+}
+function elegirPedido(elegido){
+	$('.pagos').hide();
+	$('.'+elegido).show();
+}
+function elegirCesta(elegido){
+	$('.pagosC').hide();
+	$('.'+elegido).show();
+}
+$(function(){
+	$('.agregar_item').submit(function(event){
+		{% if carrito and carrito.1.local != distribuidor.id %}
+	        if( !confirm("Quiere cancelar tu Orden de restaurant anterior?") ){
+	            event.preventDefault();
+	        }
+		{% endif %}
+	});
+})
+</script>
+{% endif %}
+<script type="text/javascript" src="{{ STATIC_URL }}js/class.validator.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+	$(function(){
+		Valid.init($('.valid'));
+		$('#formPedidoQ').submit(function() {
+			if(Valid.test()){
+				return true;
+			}else{
+				alert('Complete los cuadros en rojo');
+				return false;
+			}
+		});
+	});
+//]]>    
+</script>
+{% endblock %}
+
+{% block id_body %}distribuidor{% endblock %}
+
+{% block content %}
+{% if distribuidor %}
+
+<style type="text/css">
+.pagos{display: none;}
+.tipo{display: none;}
+.v_invalid{border: 1px solid #E62E2B;background-color: #E62E2B; color: #fff; }
+</style>
+
+<div id="contentFlow" class="block">
+	<div id="flow" class="left gd8">
+		<h2 class="h2Title">Confirma tu pedido <span class="circleRed2">&nbsp;</span></h2>
+		<p>La cocina peruana es considerada como una de las más variadas y ricas del mundo.
+			Gracias a la herencia pre incaica, incaica y a la inmigración española , africana ,
+			chino-cantonesa, japonesa e italiana principalmente</p>
+
+		<form id="formPedidoQ" action="" method="post" class="alform">
+			<h3 class="titleH3v">&gt; Datos de entrega</h3>
+			<fieldset class="block">
+				<label class="labelNDE left">
+					<input name="tipousu" type="radio" class="radioNDE" value="1" onclick="elegirtipo1()" checked="checked" />
+					<span class="spanNDE">Persona</span>
+				</label>
+				<label class="labelNDE left">
+					<input name="tipousu" type="radio" class="radioNDE" value="0" onclick="elegirtipo2()" />
+					<span class="spanNDE">Empresa</span>
+				</label>
+			</fieldset>
+			<fieldset class="block">
+				<div class="divDatoEnt left">
+					<label for="nombreF" class="labelSM left">Nombre</label>
+					<input tabindex="1" name="nombre" id="nombreF" type="text" class="content valid inputSM left" title="nombre"/>
+					<label for="direccF" class="labelSM left">Dirección</label>
+					<input tabindex="3" name="direccion" id="direccF" type="text" class="content valid inputSM left" />
+					<label for="dniF" class="labelSM left">DNI</label>
+					<input tabindex="5" name="dni" id="dniF" type="text" class="inputSM left" />
+					<label for="emailF" class="labelSM left">E-mail</label>
+					<input tabindex="7" name="correo" id="emailF" type="text" class="mail valid inputSM left" />
+					<label for="empresaF" class="labelSM left tipo">Empresa</label>
+					<input tabindex="7" name="empresa" id="empresaF" type="text" class="inputSM left tipo" />
+				</div>
+				<div class="divDatoEnt left">
+					<label for="apellidosF" class="labelSM left">Apellidos</label>
+					<input tabindex="2" name="apellidos" id="apellidosF" type="text" class="content valid inputSM left" />
+					<label for="distritoF" class="labelSM left">Distrito</label>
+					<select name="distrito" class="inputSM left" style="width: 192px;">
+					{% for dis in distritos_todos %}
+						<option value="{{ dis.nombre }}">{{ dis.nombre }}</option>
+					{% endfor %}
+					</select>
+					<label for="celularF" class="labelSM left">Celular</label>
+					<input tabindex="6" name="celular" id="celularF" type="text" class="content valid inputSM left" />
+					<label for="tlfF" class="labelSM left">Teléfono</label>
+					<input tabindex="8" name="telefono" id="tlfF" type="text" class="content valid inputSM left" />
+					<label for="rucF" class="labelSM left tipo">RUC</label>
+					<input tabindex="7" name="ruc" id="rucF" type="text" class="inputSM left tipo" />
+				</div>
+			</fieldset>
+			<h3 class="titleH3v">&gt; Detalles de la orden</h3>
+			<input type="hidden" name="local" value="<?=$local?>" />
+			<input type="hidden" name="envio" value="<?=$sede['envio']?>" />
+			<h5>Local : <strong>"{{ distribuidor.titulo }}"</strong></h5>
+			<br>
+			{% if distribuidor.pago.0 and distribuidor.pago.5 %}
+			<fieldset class="block">
+				<label class="labelNDE left">
+					<input name="tipo" type="radio" class="radioNDE" value="1" onclick="elegirPedido('D1')" checked="checked" />
+					<span class="spanNDE">Delivery</span>
+				</label>
+				<label class="labelNDE left">
+					<input name="tipo" type="radio" class="radioNDE" value="0" onclick="elegirPedido('D0')" />
+					<span class="spanNDE">Para Llevar</span>
+				</label>
+			</fieldset>
+			{% endif %}
+
+			<fieldset class="block">
+				{% if distribuidor.pago.0 and distribuidor.pago.5 %}
+				<div class="pagos D1" style="display: block;">
+					<div class="divDetalleO">Método de Pago - Delivery</div>
+					<div class="divLeftOM left">
+						{% if distribuidor.pago.1 %}<label class="labelOM"><input name="pago1" type="radio" value="1" class="inputOM" checked="checked" /> <span class="spanOM pagoEfect"><span href="#" class="payOpt opt1 icons">&nbsp;</span> Pago en efectivo</span></label>{% endif %}
+						{% if distribuidor.pago.2 %}<label class="labelOM"><input name="pago1" type="radio" value="2" class="inputOM" /> <span class="spanOM pagoVisa"><span href="#" class="payOpt opt2 icons">&nbsp;</span> Visa</span></label>{% endif %}
+						{% if distribuidor.pago.3 %}<label class="labelOM"><input name="pago1" type="radio" value="3" class="inputOM" /> <span class="spanOM pagoAmericanE"><span href="#" class="payOpt opt3 icons">&nbsp;</span> American Express</span></label>{% endif %}
+						{% if distribuidor.pago.4 %}<label class="labelOM"><input name="pago1" type="radio" value="4" class="inputOM" /> <span class="spanOM pagoMastercard"><span href="#" class="payOpt opt4 icons">&nbsp;</span> Mastercard</span></label>{% endif %}
+					</div>
+				</div>
+				<div class="pagos D0">
+					<div class="divDetalleO">Método de Pago - Para llevar</div>
+					<div class="divLeftOM left">
+						{% if distribuidor.pago.6 %}<label class="labelOM"><input name="pago0" type="radio" value="6" class="inputOM" checked="checked" /> <span class="spanOM pagoEfect"><span href="#" class="payOpt opt1 icons">&nbsp;</span> Pago en efectivo</span></label>{% endif %}
+						{% if distribuidor.pago.7 %}<label class="labelOM"><input name="pago0" type="radio" value="7" class="inputOM" /> <span class="spanOM pagoVisa"><span href="#" class="payOpt opt2 icons">&nbsp;</span> Visa</span></label>{% endif %}
+						{% if distribuidor.pago.8 %}<label class="labelOM"><input name="pago0" type="radio" value="8" class="inputOM" /> <span class="spanOM pagoAmericanE"><span href="#" class="payOpt opt3 icons">&nbsp;</span> American Express</span></label>{% endif %}
+						{% if distribuidor.pago.9 %}<label class="labelOM"><input name="pago0" type="radio" value="9" class="inputOM" /> <span class="spanOM pagoMastercard"><span href="#" class="payOpt opt4 icons">&nbsp;</span> Mastercard</span></label>{% endif %}
+					</div>
+				</div>
+				{% elseif distribuidor.pago.0 %}
+				<input type="hidden" name="tipo" value="1">
+				<div class="pagos1">
+					<div class="divDetalleO">Método de Pago - Delivery</div>
+					<div class="divLeftOM left">
+						{% if distribuidor.pago.1 %}<label class="labelOM"><input name="pago1" type="radio" value="1" class="inputOM" checked="checked" /> <span class="spanOM pagoEfect"><span href="#" class="payOpt opt1 icons">&nbsp;</span> Pago en efectivo</span></label>{% endif %}
+						{% if distribuidor.pago.2 %}<label class="labelOM"><input name="pago1" type="radio" value="2" class="inputOM" /> <span class="spanOM pagoVisa"><span href="#" class="payOpt opt2 icons">&nbsp;</span> Visa</span></label>{% endif %}
+						{% if distribuidor.pago.3 %}<label class="labelOM"><input name="pago1" type="radio" value="3" class="inputOM" /> <span class="spanOM pagoAmericanE"><span href="#" class="payOpt opt3 icons">&nbsp;</span> American Express</span></label>{% endif %}
+						{% if distribuidor.pago.4 %}<label class="labelOM"><input name="pago1" type="radio" value="4" class="inputOM" /> <span class="spanOM pagoMastercard"><span href="#" class="payOpt opt4 icons">&nbsp;</span> Mastercard</span></label>{% endif %}
+					</div>
+				</div>
+				{% elseif distribuidor.pago.5 %}
+				<input type="hidden" name="tipo" value="0">
+				<div class="pagos1">
+					<div class="divDetalleO">Método de Pago - Para llevar</div>
+					<div class="divLeftOM left">
+						{% if distribuidor.pago.6 %}<label class="labelOM"><input name="pago0" type="radio" value="6" class="inputOM" checked="checked" /> <span class="spanOM pagoEfect"><span href="#" class="payOpt opt1 icons">&nbsp;</span> Pago en efectivo</span></label>{% endif %}
+						{% if distribuidor.pago.7 %}<label class="labelOM"><input name="pago0" type="radio" value="7" class="inputOM" /> <span class="spanOM pagoVisa"><span href="#" class="payOpt opt2 icons">&nbsp;</span> Visa</span></label>{% endif %}
+						{% if distribuidor.pago.8 %}<label class="labelOM"><input name="pago0" type="radio" value="8" class="inputOM" /> <span class="spanOM pagoAmericanE"><span href="#" class="payOpt opt3 icons">&nbsp;</span> American Express</span></label>{% endif %}
+						{% if distribuidor.pago.9 %}<label class="labelOM"><input name="pago0" type="radio" value="9" class="inputOM" /> <span class="spanOM pagoMastercard"><span href="#" class="payOpt opt4 icons">&nbsp;</span> Mastercard</span></label>{% endif %}
+					</div>
+				</div>
+				{% endif %}
+				<div class="divRighttOM left">
+					<label class="labelMM left" for="tiempoEntF">Tiempo de entrega</label>
+					<select name="tiempo" class="inputMM left" id="tiempoEntF" style="width: 192px;">
+						<option value="De 45min a 1:30 horas">De 45min a 1:30 horas</option>
+						<option value="En 2 horas">En 2 horas</option>
+						<option value="En 3 horas">En 3 horas</option>
+						<option value="En 4 horas">En 4 horas</option>
+						<option value="En 5 horas">En 5 horas</option>
+						<option value="En 6 horas">En 6 horas</option>
+					</select>
+					<label class="labelMM left" for="indicaF">Indicaciones</label>
+					<textarea class="content valid textareaMM left" id="indicaF" name="indicaciones"></textarea>
+					<div class="block">
+						<input class="submitMM right sbtN" type="submit" name="envio-orden"value="Relizar pedido"/>
+					</div>
+				</div>
+			</fieldset>
+		</form>
+	</div>
+	{% include 'app/cesta.html' %}
+</div>
+</div>
+{% else %}
+<h2 class="h2Title">Este sitio esta deshabilitado o no tiene permisos<span class="circleRed">&nbsp;</span></h2>
+{% endif %}
+{% endblock %}

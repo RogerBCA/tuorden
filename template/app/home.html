@@ -7,6 +7,11 @@
 <script src="http://cdn.jquerytools.org/1.2.6/full/jquery.tools.min.js"></script>
 <script src="http://ajax.aspnetcdn.com/ajax/jquery.cycle/2.99/jquery.cycle.all.js" type="text/javascript"></script>
 <script src="{{ STATIC_URL }}js/main.js" type="text/javascript"></script>
+{% if mensaje == 'Enviado' %}
+<script type="text/javascript">
+	alert('Se envio el pedido con éxito');
+</script>
+{% endif %}
 {% endblock %}
 
 {% block slider_home %}

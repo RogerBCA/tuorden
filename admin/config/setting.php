@@ -19,8 +19,8 @@ DEFINE("ADMIN_SITE", SITE.'/admin/');
 DEFINE("CONTROLLER", 'controller/bloques/');
 DEFINE("MODEL", 'model/bloques/');
 DEFINE("VIEW", 'view/bloques/');
-DEFINE("TEMPLATE", './update/template');
-DEFINE("STATIC_URL", SITE.'/update/static/');
+DEFINE("TEMPLATE", './tuorden/template');
+DEFINE("STATIC_URL", SITE.'/tuorden/static/');
 
 /////////////////////////////////////////
 // WEBMASTER

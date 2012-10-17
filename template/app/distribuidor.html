@@ -57,6 +57,23 @@
 	</script>
 	{% endif %}
 {% endif %}
+{% if carrito %}
+<script type="text/javascript" >
+function elegirCesta(elegido){
+	$('.pagosC').hide();
+	$('.'+elegido).show();
+}
+$(function(){
+	$('.agregar_item').submit(function(event){
+		{% if carrito and carrito.1.local != distribuidor.id %}
+	        if( !confirm("Quiere cancelar tu Orden de restaurant anterior?") ){
+	            event.preventDefault();
+	        }
+		{% endif %}
+	});
+})
+</script>
+{% endif %}
 {% endblock %}
 
 {% block id_body %}distribuidor{% endblock %}

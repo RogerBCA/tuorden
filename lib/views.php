@@ -33,6 +33,7 @@ $locals['footer'] = $app->query('bloques',array("padre in (2,5)","estado=1"),'',
 $locals['categorias'] = $app->query('categorias',array("padre=1","estado=1"),'','order by prioridad');
 $locals['distritos'] = $app->query('distritos','','',
     'where  id in (select distrito from distribuidores_sedes where estado=1 group by distrito)');
+$locals['distritos_todos'] = $app->query('distritos');
 /*
 printQuery($locals['distritos']);
 exit();
@@ -53,6 +54,13 @@ if ($v[1] == 'home') {
             $img_pro = explode( ",", $v->imagen );
             $locals['promociones'][$k]->imagen = $img_pro[1];
         }
+    }
+
+    if( isset( $_SESSION['pedido'] ) and $_SESSION['pedido'] == 'Enviado' ){
+        unset($_SESSION['carrito']);
+        unset($_SESSION['pedido']);
+        session_destroy();
+        $locals['mensaje'] = 'Enviado';
     }
 
     echo $twig->render('app/home.html', $locals );
@@ -175,17 +183,22 @@ if ($v[1] == 'home') {
                 header('Location: '.$_SERVER['HTTP_REFERER']);
             }else{
                 foreach ($_SESSION['carrito'] as $k => $val) {
-
                     if( $POST['item'] == $val['item'] and $POST['local'] == $val['local'] ){
                         $_SESSION['carrito'][$k]['local'] = $POST['local'];
                         $_SESSION['carrito'][$k]['item'] = $POST['item'];
                         $_SESSION['carrito'][$k]['cantidad'] = $val['cantidad']+1;
-                        $carrito = true;
                         header('Location: '.$_SERVER['HTTP_REFERER']);
+                    }else if ($POST['local'] != $val['local']) {
+                        unset($_SESSION['carrito']);
+                        $_SESSION['carrito'][1]['local'] = $POST['local'];
+                        $_SESSION['carrito'][1]['item'] = $POST['item'];
+                        $_SESSION['carrito'][1]['cantidad'] = 1;
+                        header('Location: '.$_SERVER['HTTP_REFERER']);
+                    }else{
+                        $car = $k+1;
                     }
-                    $car = $k+1;
                 }
-                if( !isset($carrito) ){
+                if( isset($car) ){
                     $_SESSION['carrito'][$car]['local'] = $POST['local'];
                     $_SESSION['carrito'][$car]['item'] = $POST['item'];
                     $_SESSION['carrito'][$car]['cantidad'] = 1;
@@ -211,12 +224,14 @@ if ($v[1] == 'home') {
         // CESTA INFORMACION 
         if( isset($_SESSION['carrito']) ){
             $locals['carrito'] = $_SESSION['carrito'];
+            $locals['carrito_total'] = '';
             foreach ($locals['carrito'] as $k => $val) {
                 $query = $app->query('productos',array('id='.$val['item'],'id_distribu='.$val['local']));
                 if($query){
                     $query = $query[0];
                     $locals['carrito'][$k]['titulo'] = $query->titulo;
-                    $locals['carrito'][$k]['precio'] = $query->precio;
+                    $locals['carrito'][$k]['precio'] = $query->precio*$val['cantidad'];
+                    $locals['carrito_total'] += $query->precio*$val['cantidad'];
                 }else{
                     unset($_SESSION['carrito'][$k]);
                     unset($locals['carrito'][$k]);
@@ -224,12 +239,78 @@ if ($v[1] == 'home') {
             }
         }
         // FIN DE CESTA
-
         
     }else{
         $locals['distribuidor'] = false;
     }
-    echo $twig->render('app/distribuidor.html', $locals );
+
+    if ( isset($v[4]) and $v[4] == 'pedido' ) {
+        if( isset($POST['envio-orden']) ){
+            $locals['orden']['nombre']     = $POST['nombre'];
+            $locals['orden']['apellidos']  = $POST['apellidos'];
+            $locals['orden']['direccion']  = $POST['direccion'];
+            $locals['orden']['distrito']   = $POST['distrito'];
+            $locals['orden']['telefono']   = $POST['telefono'];
+            $locals['orden']['celular']    = $POST['celular'];
+            $locals['orden']['dni']        = $POST['dni'];
+            $locals['orden']['correo']     = $POST['correo'];
+            $locals['orden']['tiempo']     = $POST['tiempo'];
+            $locals['orden']['indicacion'] = $POST['indicaciones'];
+            $locals['orden']['empresa']    = $POST['empresa'];
+            $locals['orden']['ruc']        = $POST['ruc'];
+            
+            $locals['orden']['local']      = $POST['local'];
+
+            if($POST['tipo'] == 1) {
+                $locals['orden']['tipo']           = 'Delivery';
+                $pago           = $POST['pago1'];
+                if($pago == 1) $locals['orden']['pago_tipo'] = 'Pago Efectivo';
+                if($pago == 2) $locals['orden']['pago_tipo'] = 'Visa';
+                if($pago == 3) $locals['orden']['pago_tipo'] = 'American Express';
+                if($pago == 4) $locals['orden']['pago_tipo'] = 'Mastercard';
+            }else {
+                $locals['orden']['tipo']           = 'Para Llevar';
+                $pago           = $POST['pago0'];
+                if($pago == 6) $locals['orden']['pago_tipo'] = 'Pago Efectivo';
+                if($pago == 7) $locals['orden']['pago_tipo'] = 'Visa';
+                if($pago == 8) $locals['orden']['pago_tipo'] = 'American Express';
+                if($pago == 9) $locals['orden']['pago_tipo'] = 'Mastercard';
+            }
+
+            $mail = new PHPMailer();
+            /*
+            $mail->IsSMTP();
+            $mail->SMTPAuth = true;
+            $mail->SMTPSecure = "ssl";
+            $mail->Host = "smtp.gmail.com";
+            $mail->Port = 465;
+            $mail->Username = "mix.minds@gmail.com";  
+            $mail->Password = "pueblolibre";
+            */
+            $body = $twig->render('app/email-orden.html', $locals );
+            $mail->SetFrom("pedido@tuorden.pe","Pedido - ".app_name);
+            $mail->AddAddress("pedido@tuorden.pe","Pedido - ".app_name);
+            $mail->AddBCC("rbaltazarc@gmail.com","Administrador");
+            if( valid_email($locals['orden']['correo']) ){
+                $mail->AddBCC($locals['orden']['correo'],"Cliente");
+            }
+            $mail->Subject    = "Pedido - ".app_name;
+            $mail->AltBody    = "Para ver el mensaje, utilice un correo electrónico HTML compatible";
+            $mail->MsgHTML($body);
+
+            if(!$mail->Send()) {
+                $locals['errors']['proceso'] = "Error de Envio: " . $mail->ErrorInfo;
+            }else{
+                $_SESSION['pedido'] = 'Enviado';
+                header('Location: '.$locals['SITE_URL']);
+            }
+
+        }
+
+        echo $twig->render('app/pedido.html', $locals );
+    }else{
+        echo $twig->render('app/distribuidor.html', $locals );
+    }
     // FIN DE LISTA
     
 }elseif ($v[1] == 'busqueda' ) {
