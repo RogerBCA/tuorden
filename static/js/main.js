@@ -6,7 +6,7 @@ $(function(){
 	});
 
 	$('#banners').cycle({ pager:  '#button-slider' });
-	$('#gallery').cycle({ 
+	$('#gallery .gallery').cycle({ 
 		// fx:     'scrollHorz',
 		speed:   500, 
 		timeout: 5000,
@@ -14,4 +14,14 @@ $(function(){
 		next: '#next', 
 		prev: '#prev'							
 	});
+	
+	$('#gallery .gallery_title').cycle({ 
+		// fx:     'scrollHorz',
+		speed:   500, 
+		timeout: 5000,
+		pause:   0,
+		next: '#next', 
+		prev: '#prev'							
+	});
+	
 });

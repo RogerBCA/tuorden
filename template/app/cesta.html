@@ -1,50 +1,37 @@
+{% if CESTA == 'ON' %}
 <div id="aside" class="right">
 	<div class="ordenOpts">
-		<form class="frmF" action="#">
+		<form class="frmF" action="">
+			{% if carrito %}
 			<div class="iOrdenOpts">
 				<div class="espWhite">
+					<img src="/timthumb.php?src={{ distribuidor.logo }}&h=105&w=200&zc=1">
 				</div>
 				<div class="block br1">
 					<div class="left blockLOP">
 						<h6 class="titleH6">Tu Orden</h6>
 					</div>
 					<div class="right mT20">
-						<span class="redBtn icons"></span>
+						<a href="?carrito=limpiar" title="Eliminar Todo"><span class="redBtn icons"></span></a>
 					</div>
 				</div>
 				<div class="cntBlockTO br1 block">
+					{% for i,car in carrito %}
 					<div class="block">
 						<div class="left blockLOP">
-							<label class="labelOpt"><input type="checkbox" class="checkN left"><span class="txtN right">Hamburguesa Clásica</span></label>
+							<input type="hidden" name="local" value="41">
+							<input type="hidden" name="reference" value="">
+							<label class="labelOpt">
+								<input type="text" size="2" name="qty" style="width: 20px;" value="{{ car.cantidad }}" maxlength="2">
+							<span class="txtN right" style="padding-top: 4px;">{{ car.titulo }}</span></label>
 						</div>
-						<div class="right">
-							<span class="redBtn icons"></span>
-						</div>
-					</div>
-					<div class="block">
-						<div class="left blockLOP">
-							<label class="labelOpt"><input type="checkbox" class="checkN left"><span class="txtN right">Hamburguesa Clásica</span></label>
-						</div>
-						<div class="right">
-							<span class="redBtn icons"></span>
+						<div class="right" style="padding-top: 4px;">
+							<a href="?deleted={{ i }}" title="Eliminar item" class="botonEliminar">
+								<span class="redBtn icons"></span>
+							</a>
 						</div>
 					</div>
-					<div class="block">
-						<div class="left blockLOP">
-							<label class="labelOpt"><input type="checkbox" class="checkN left"><span class="txtN right">Hamburguesa Clásica</span></label>
-						</div>
-						<div class="right">
-							<span class="redBtn icons"></span>
-						</div>
-					</div>
-					<div class="block">
-						<div class="left blockLOP">
-							<label class="labelOpt"><input type="checkbox" class="checkN left"><span class="txtN right">Hamburguesa Clásica Extra Grande </span></label>
-						</div>
-						<div class="right">
-							<span class="redBtn icons"></span>
-						</div>
-					</div>
+					{% endfor %}
 				</div>
 				<div class="br1 cntBr block">
 					<span class="right">Delivery</span>
@@ -57,6 +44,24 @@
 					<input type="submit" class="sbtN right" value="Ordenar">
 				</div>
 			</div>
+			{% else %}
+			<div class="iOrdenOpts">
+			    <div class="block br1">
+			        <div class="left blockLOP">
+			            <h6 class="titleH6">Tu Orden</h6>
+			        </div>
+			    </div>
+			    <div class="cntBlockTO br1 block">
+			        <div class="block">
+			            <div class="left blockLOP">
+			                <label class="labelOpt">
+			                	<span class="txtN right">Cesta Vacia</span>
+			                </label>
+			            </div>
+			        </div>
+			    </div>
+			</div>
+			{% endif %}
 		</form>
 	</div>
 	<div class="cntPayOpt">
@@ -81,3 +86,29 @@
 		</div>
 	</div>
 </div>
+{% else %}
+<div id="aside" class="right">
+	<div class="ordenOpts">
+		<form id="formCesta" class="frmF" action="carrito.php?update=1" method="post">
+		<input type="hidden" name="reference" value="/distribuidor.php?d=41&amp;tipo=menu">
+		<div class="iOrdenOpts">
+			<input type="hidden" name="id_local2" id="id_local2" value="">
+			<div class="block br1">
+				<div class="left blockLOP">
+					<h6 class="titleH6">Tu Orden</h6>
+				</div>
+			</div>
+
+			<div class="cntBlockTO br1 block">
+				<div class="block">
+					<div class="left blockLOP">
+					<label class="labelOpt"><span class="txtN right">En mantenimiento...</span></label>
+					</div>
+				</div>
+				<input type="hidden" id="itemCar" name="itemCar">
+			</div>
+		</div>
+		</form>
+	</div>
+</div>
+{% endif %}

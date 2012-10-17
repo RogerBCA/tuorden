@@ -269,7 +269,8 @@ br{ line-height:1 }
 	width:430px; 
 	height:321px; 
 	overflow:hidden 
-} 
+}
+.gallery_title{ top: 340px; }
 #next, #prev{ .abs(); top:210px; width:30px; height:33px; overflow:hidden }
 #prev{ background-position: 0 -64px; left:0 }
 #next{ background-position: 0 -102px; right:0 }

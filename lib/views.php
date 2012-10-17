@@ -2,7 +2,7 @@
 /* LIMPIEZA DE GET Y POST */ 
 if(isset($_POST)) $POST=array_map("cleanQuery",$_POST);
 if(isset($_GET)) $GET=array_map("cleanQuery",$_GET);
-if(isset($_SESSION)) $SESSION=array_map("cleanQuery",$_SESSION);
+// if(isset($_SESSION)) $SESSION=array_map("cleanQuery",$_SESSION);
 /* FIN DE LIMPIEZA GET Y POST  */
 
 // Separando consultas internas
@@ -27,7 +27,7 @@ $locals = array();
 $locals['app_name'] = app_name;
 $locals['STATIC_URL'] = STATIC_URL;
 $locals['SITE_URL'] = SITE_URL;
-
+$locals['CESTA'] = 'ON';
 $locals['header'] = $app->query('bloques',array("padre=2","estado=1"),'','order by id');
 $locals['footer'] = $app->query('bloques',array("padre in (2,5)","estado=1"),'','order by padre,id');
 $locals['categorias'] = $app->query('categorias',array("padre=1","estado=1"),'','order by prioridad');
@@ -134,22 +134,98 @@ if ($v[1] == 'home') {
 
     // INICIO
     if( $v[2]!='' and is_numeric($v[2]) ){
-        $query = $app->query('distribuidores',array('id='.$v[2]));
+        $query = $app->query('distribuidores',array('id='.$v[2],'estado=1'));
         if ($query){
             $locals['distribuidor'] = $query[0];
             if(isset($v[3]) and $v[3] == '') header('location: '.SITE_URL.'distribuidor/'.$v[2].'/inicio/');
-            $query = $app->query('distribuidores_sedes',array('id_distribu='.$v[2]));
-            if($query){
-                $imagen = explode(',',$query[0]->imagen);
-                $locals['distribuidor']->imagen = $imagen[1];
+            $locals['distribuidor']->sedes = $app->query('distribuidores_sedes',array('id_distribu='.$v[2]));
+            if($locals['distribuidor']->sedes){
+                $imagen = '';
+                $img_title = '';
+                foreach($locals['distribuidor']->sedes as $img){
+                    $image_1 = explode(',', $img->imagen);
+                    $imagen .= $image_1[1].',';
+                    $img_title .= $img->titulo.',';
+                }
+                $imagen = explode(',',$imagen);
+                $img_title = explode(',',$img_title);
+                $locals['distribuidor']->imagen = $imagen;
+                $locals['distribuidor']->img_title = $img_title;
+
+                $imagen = explode(',', $query[0]->imagen_listado);
+                $locals['distribuidor']->logo = $imagen[1];
+
                 $locals['distribuidor']->valido = '';
-                foreach ($query as $val) $locals['distribuidor']->valido .= $val->descripcion.'<br>';
+                foreach ($locals['distribuidor']->sedes as $val) $locals['distribuidor']->valido .= $val->descripcion.'<br>';
             }
             $locals['distribuidor']->pago = explode(",",$locals['distribuidor']->pago);
             $locals['distribuidor']->vista = $v[3];
-            // printQuery($locals['distribuidor']);
-            // exit();
+            if( $v[3] == 'menu' ){
+                $locals['distribuidor']->prod = $app->query('productos',array('id_distribu='.$v[2],'promo!=1','precio!=0'));
+                $locals['distribuidor']->prod_promo = $app->query('productos',array('id_distribu='.$v[2],'promo=1','precio!=0'));
+            }
         }
+
+        // AGREGA UN PRODUCTO
+        if( isset($POST['add-prod']) ){
+            if( !isset($_SESSION['carrito']) ){
+                $_SESSION['carrito'][1]['local'] = $POST['local'];
+                $_SESSION['carrito'][1]['item'] = $POST['item'];
+                $_SESSION['carrito'][1]['cantidad'] = 1;
+                header('Location: '.$_SERVER['HTTP_REFERER']);
+            }else{
+                foreach ($_SESSION['carrito'] as $k => $val) {
+
+                    if( $POST['item'] == $val['item'] and $POST['local'] == $val['local'] ){
+                        $_SESSION['carrito'][$k]['local'] = $POST['local'];
+                        $_SESSION['carrito'][$k]['item'] = $POST['item'];
+                        $_SESSION['carrito'][$k]['cantidad'] = $val['cantidad']+1;
+                        $carrito = true;
+                        header('Location: '.$_SERVER['HTTP_REFERER']);
+                    }
+                    $car = $k+1;
+                }
+                if( !isset($carrito) ){
+                    $_SESSION['carrito'][$car]['local'] = $POST['local'];
+                    $_SESSION['carrito'][$car]['item'] = $POST['item'];
+                    $_SESSION['carrito'][$car]['cantidad'] = 1;
+                    header('Location: '.$_SERVER['HTTP_REFERER']);
+                }
+            }
+        }
+        // FIN DE PROCESO DE AGREGAR
+
+        if( isset($GET['carrito']) and $GET['carrito'] == 'limpiar' ){
+            unset($_SESSION['carrito']);
+            session_destroy();
+            header('Location: '.$_SERVER['HTTP_REFERER']);
+        }
+
+        if ( isset($GET['deleted']) ) {
+            if ( isset($_SESSION['carrito'][$GET['deleted']]) ) {
+                unset($_SESSION['carrito'][$GET['deleted']]);
+                header('Location: '.$_SERVER['HTTP_REFERER']);
+            }
+        }
+
+        // CESTA INFORMACION 
+        if( isset($_SESSION['carrito']) ){
+            $locals['carrito'] = $_SESSION['carrito'];
+            foreach ($locals['carrito'] as $k => $val) {
+                $query = $app->query('productos',array('id='.$val['item'],'id_distribu='.$val['local']));
+                if($query){
+                    $query = $query[0];
+                    $locals['carrito'][$k]['titulo'] = $query->titulo;
+                    $locals['carrito'][$k]['precio'] = $query->precio;
+                }else{
+                    unset($_SESSION['carrito'][$k]);
+                    unset($locals['carrito'][$k]);
+                }
+            }
+        }
+        // FIN DE CESTA
+
+        
     }else{
         $locals['distribuidor'] = false;
     }
